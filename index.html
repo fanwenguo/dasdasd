@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+	<script>
+		document.documentElement.style.fontSize = window.innerWidth/375*50+'px';
+	</script>
+	<title>Document</title>
+	<link rel="stylesheet" href="css/swiper-3.4.2.min.css">
+	<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+	<div id="wrap">
+		<header class="header">
+			<nav class="nav">
+				<span class="dres">北京</span>
+				<p class="text"></p>
+				<span class="user">用</span>
+			</nav>
+			<section class="icon-box">
+				<div class="swiper-wrapper">
+					<div class="swiper-slide">
+						<a href="">
+							<span>1</span>
+						</a>
+						<a href="">
+							<span>2</span>
+						</a>
+						<a href="">
+							<span>3</span>
+						</a>
+						<a href="">
+							<span></span>
+						</a>
+						<a href="">
+							<span></span>
+						</a>
+						<a href="">
+							<span></span>
+						</a>
+						<a href="">
+							<span></span>
+						</a>
+						<a href="">
+							<span></span>
+						</a>
+						<a href="">
+							<span></span>
+						</a>
+						<a href="">
+							<span></span>
+						</a>
+					</div>
+					<div class="swiper-slide">
+						<a href="">
+							<span>6</span>
+						</a>
+						<a href="">
+							<span>7</span>
+						</a>
+						<a href="">
+							<span>8</span>
+						</a>
+						<a href="">
+							<span></span>
+						</a>
+						<a href="">
+							<span></span>
+						</a>
+						<a href="">
+							<span></span>
+						</a>
+						<a href="">
+							<span></span>
+						</a>
+						<a href="">
+							<span></span>
+						</a>
+						<a href="">
+							<span></span>
+						</a>
+						<a href="">
+							<span></span>
+						</a>
+					</div>
+				</div>
+			</section>
+		</header>
+		<main>
+			<div class="slideUp">
+				<ul class="slideUpcont">
+					<li>0000001</li>
+					<li>0000002</li>
+					<li>0000003</li>
+					<li>0000004</li>
+				</ul>
+			</div>
+			<ul class="list" info="上拉加载...">
+
+			</ul>
+		</main>
+	</div>
+</body>
+<script src="js/swiper-3.4.2.min.js"></script>
+<script src="js/slideup.js"></script>
+<script src="js/ajax.js"></script>
+<script>
+	;(function(a){
+
+		//滚动
+		var nav = document.querySelector('.nav');
+		var list = document.querySelector('.list');
+		//可视区域高度
+		var winh = document.documentElement.clientHeight || document.body.clientHeight;
+		window.onscroll = srcoll;
+		function srcoll(){
+				var tops = document.documentElement.scrollTop || document.body.scrollTop;
+				if(tops <= 0 ){
+					nav.classList.remove('ani');
+				}else{
+					nav.classList.add('ani');
+				}
+				//最后一个li
+				var lastLi = list.children[list.children.length-1];
+				if(tops+winh > lastLi.offsetTop){
+					window.onscroll = null;
+					list.classList.remove('hide');
+					setTimeout(function(){
+						ajax({
+							url:"data/data.json",
+							success:function(d){
+								var arr = JSON.parse(d).data.feed.feed_list;
+								setHTML(arr);
+								list.classList.add('hide');
+								window.onscroll = srcoll;
+							}
+						})
+					},600)
+				}
+		}
+		//实例化swiper
+		var mySwier = new Swiper('.icon-box');
+
+
+
+		new SlideUp({
+			parent:'.slideUp',
+			cont:'.slideUpcont'
+		})
+
+
+		ajax({
+			url:"data/data.json",
+			success:function(d){
+				var arr = JSON.parse(d).data.feed.feed_list;
+				setHTML(arr);
+			}
+		})
+
+		function setHTML(arr){
+			var str = "";
+			arr.forEach(function(v,i){
+				var imga = v.images;
+				var imgstr = "";
+				if(imga){
+					imga.forEach(function(a,b){
+						imgstr += '<img src="'+a+'" alt="" />'
+					})
+				}
+				var info = "";
+				if(v.info){
+					info = v.info.content.join('|');
+				}
+				str+=`
+				<li>
+					<h2>${v.title}</h2>
+					<p><span>${v.area}</span><b>￥${v.price}/人</b></p>
+					<p>${imgstr}</p>
+					<em>${info}</em>
+				</li>
+				`
+			});
+			list.innerHTML += str;
+		}
+	})(window)
+
+
+</script>
+</html>
